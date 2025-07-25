@@ -3,6 +3,7 @@ import os
 import sys
 import fnmatch
 import shutil
+import argparse
 
 EXACT_NAMES = {
     "prompt",
@@ -48,18 +49,14 @@ REL_PATH_PREFIXES = {
 
 def should_exclude(full_path, rel_path):
     base = os.path.basename(full_path)
-    # exact filename
     if base in EXACT_NAMES:
         return True
-    # glob patterns on basename
     for pat in GLOB_NAMES:
         if fnmatch.fnmatch(base, pat):
             return True
-    # excluded sub‑directory
     parts = rel_path.split(os.sep)
     if any(p in EXCLUDE_DIRS for p in parts):
         return True
-    # specific relative‑path prefixes
     for prefix in REL_PATH_PREFIXES:
         if rel_path.startswith(prefix + os.sep):
             return True
@@ -70,16 +67,13 @@ def dump_tree(folder_path, output_path="output.txt"):
     folder_path = os.path.abspath(folder_path)
     cwd = os.getcwd()
 
-    # remove old output
     if os.path.exists(output_path):
         os.remove(output_path)
 
     with open(output_path, "wb") as out:
         for root, dirs, files in os.walk(folder_path, topdown=True):
-            # prune unwanted directories
             dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
             rel_root = os.path.relpath(root, folder_path)
-            # skip entire srcs/database subtree
             if rel_root in REL_PATH_PREFIXES or any(
                 rel_root.startswith(p + os.sep) for p in REL_PATH_PREFIXES
             ):
@@ -95,11 +89,9 @@ def dump_tree(folder_path, output_path="output.txt"):
                 if should_exclude(full, os.path.relpath(full, folder_path)):
                     continue
 
-                # header
                 header = f"### {rel} ###\n".encode("utf-8")
                 out.write(header)
 
-                # raw copy
                 try:
                     with open(full, "rb") as src:
                         shutil.copyfileobj(src, out, 16 * 1024)
@@ -107,24 +99,32 @@ def dump_tree(folder_path, output_path="output.txt"):
                     msg = f"\n<!-- could not read file: {e} -->\n".encode("utf-8")
                     out.write(msg)
 
-                out.write(b"\n")  # separate files
+                out.write(b"\n")
 
     print(f"All files have been copied to {output_path}.")
 
 
 def main():
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <folder_path>")
+    parser = argparse.ArgumentParser(
+        description="Recursively dump all files under a folder into a single output file."
+    )
+    parser.add_argument(
+        "folder",
+        help="Path to the folder whose files you want to copy"
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default="output.txt",
+        help="Output file path (default: output.txt)"
+    )
+    args = parser.parse_args()
+
+    if not os.path.isdir(args.folder):
+        print(f"Error: The folder '{args.folder}' does not exist.")
         sys.exit(1)
 
-    folder = sys.argv[1]
-    if not os.path.isdir(folder):
-        print(f"Error: The folder '{folder}' does not exist.")
-        sys.exit(1)
-
-    dump_tree(folder)
+    dump_tree(args.folder, args.output)
 
 
 if __name__ == "__main__":
     main()
-
