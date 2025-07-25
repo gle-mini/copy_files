@@ -5,6 +5,7 @@ import fnmatch
 import shutil
 import argparse
 
+
 EXACT_NAMES = {
     "prompt",
     "libft_malloc_x86_64.so",
@@ -28,7 +29,6 @@ GLOB_NAMES = {
     "*.png",
     "*.o",
     "*.d",
-    "*.py",
     "*.log",
     "*.bin",
     "*out*",
@@ -105,6 +105,15 @@ def dump_tree(folder_path, output_path="output.txt"):
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Recursively dump all files under a folder into a single output file."
+    )
+    # Manual usage check so missing folder arg exits with code 1 and prints Usage: to stdout
+    if len(sys.argv) < 2:
+        prog = os.path.basename(sys.argv[0])
+        print(f"Usage: {prog} [-o OUTPUT] folder")
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(
         description="Recursively dump all files under a folder into a single output file."
     )
