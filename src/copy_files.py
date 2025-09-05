@@ -21,6 +21,7 @@ EXACT_NAMES = {
     ".gdbinit",
     "save",
     ".gitignore",
+    "LICENSE",
 }
 
 GLOB_NAMES = {
@@ -39,7 +40,7 @@ GLOB_NAMES = {
 
 EXCLUDE_DIRS = {
     ".git", ".github", "objs", "venv", "build",
-    "images", "iso", "migrate", "sounds",
+    "images", "iso", "migrate", "sounds", ".zig-cache",
 }
 
 REL_PATH_PREFIXES = {
