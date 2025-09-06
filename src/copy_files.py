@@ -40,7 +40,7 @@ GLOB_NAMES = {
 
 EXCLUDE_DIRS = {
     ".git", ".github", "objs", "venv", "build",
-    "images", "iso", "migrate", "sounds", ".zig-cache",
+    "images", "iso", "migrate", "sounds", ".zig-cache", "zig-out",
 }
 
 REL_PATH_PREFIXES = {
