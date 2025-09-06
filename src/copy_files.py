@@ -36,6 +36,7 @@ GLOB_NAMES = {
     "*uml",
     "*clang*",
     "*flowchart*",
+    "*.swp",
 }
 
 EXCLUDE_DIRS = {
